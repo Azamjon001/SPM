@@ -1,167 +1,170 @@
-# Azaton Go Backend
+# ⚙️ Azaton Go Backend
 
-A high-performance REST API backend for the Azaton e-commerce platform, built with Go and PostgreSQL.
+E-commerce platformasi uchun yuqori samarali REST API backend - Go va PostgreSQL bilan yaratilgan.
 
-## Features
+## ✨ Xususiyatlar
 
-- 🚀 **High Performance**: Built with Gin framework for blazing fast API responses
-- 🔐 **JWT Authentication**: Secure token-based authentication
-- 📦 **PostgreSQL Database**: Robust and reliable data storage
-- 🐳 **Docker Ready**: Easy deployment with Docker and Docker Compose
-- 📊 **Full CRUD Operations**: Complete API for all entities
+- 🚀 **Yuqori Samaradorlik**: Gin framework bilan tezkor API javoblari
+- 🔐 **JWT Autentifikatsiya**: Xavfsiz token asosidagi autentifikatsiya
+- 📦 **PostgreSQL Database**: Ishonchli ma'lumotlar bazasi
+- 🐳 **Docker Ready**: Docker bilan oson deployment
+- 📊 **To'liq CRUD**: Barcha entity'lar uchun to'liq API
 
-## Tech Stack
+## 🔧 Texnologiyalar
 
-- **Go 1.22**: Modern Go with generics support
-- **Gin Web Framework**: Fast HTTP router and web framework
-- **pgx/v5**: High-performance PostgreSQL driver
-- **JWT**: JSON Web Token authentication
-- **Docker**: Containerization for easy deployment
+| Texnologiya | Versiya | Vazifasi |
+|-------------|---------|----------|
+| Go | 1.22+ | Asosiy til |
+| Gin | - | Web framework |
+| pgx/v5 | - | PostgreSQL driver |
+| JWT | - | Autentifikatsiya |
 
-## Project Structure
+## 📁 Struktura
 
 ```
 backend/
 ├── cmd/
 │   └── server/
-│       └── main.go          # Application entry point
+│       └── main.go          # Entry point
 ├── internal/
 │   ├── config/
-│   │   └── config.go        # Configuration management
+│   │   └── config.go        # Konfiguratsiya
 │   ├── database/
-│   │   └── database.go      # Database connection and migrations
+│   │   └── database.go      # DB ulanish
 │   ├── handlers/
-│   │   ├── ads.go           # Advertisement handlers
-│   │   ├── companies.go     # Company handlers
-│   │   ├── expenses.go      # Expense handlers + Cart
-│   │   ├── orders.go        # Order and Sales handlers
-│   │   ├── products.go      # Product handlers
-│   │   ├── receipts.go      # Receipt and Likes handlers
-│   │   └── users.go         # User handlers
+│   │   ├── ads.go           # Reklamalar
+│   │   ├── companies.go     # Kompaniyalar
+│   │   ├── expenses.go      # Xarajatlar + Savat
+│   │   ├── orders.go        # Buyurtmalar
+│   │   ├── products.go      # Mahsulotlar
+│   │   ├── receipts.go      # Cheklar + Likes
+│   │   └── users.go         # Foydalanuvchilar
 │   ├── middleware/
-│   │   └── auth.go          # JWT authentication middleware
+│   │   └── auth.go          # Auth middleware
 │   └── models/
-│       └── models.go        # Data models
-├── migrations/
-│   └── 001_init.sql         # Database schema
-├── Dockerfile               # Docker build instructions
-├── go.mod                   # Go module definition
-└── README.md               # This file
+│       └── models.go        # Data modellari
+├── go.mod                   # Go module
+└── README.md                # Ushbu fayl
 ```
 
-## API Endpoints
+## 🌐 API Endpoints
 
-### Companies
-- `GET /api/companies` - List all companies
-- `GET /api/companies/:id` - Get company by ID
-- `POST /api/companies` - Create new company
-- `PUT /api/companies/:id` - Update company
-- `DELETE /api/companies/:id` - Delete company
-- `POST /api/companies/login` - Login (returns JWT)
-- `POST /api/companies/verify-access` - Verify access key
+### Kompaniyalar
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| GET | `/api/companies` | Barcha kompaniyalar |
+| GET | `/api/companies/:id` | ID bo'yicha kompaniya |
+| POST | `/api/companies` | Yangi kompaniya |
+| PUT | `/api/companies/:id` | Yangilash |
+| DELETE | `/api/companies/:id` | O'chirish |
+| POST | `/api/companies/login` | Kirish (JWT) |
+| POST | `/api/companies/verify-access` | Access key tekshirish |
 
-### Products
-- `GET /api/products` - List products (with optional company_id filter)
-- `GET /api/products/paginated` - Paginated products list
-- `POST /api/products/add` - Add new product
-- `PUT /api/products/:id` - Update product
-- `DELETE /api/products/:id` - Delete product
-- `POST /api/products/bulk-import` - Bulk import products
-- `POST /api/products/:id/upload-image` - Upload product image
+### Mahsulotlar
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| GET | `/api/products` | Ro'yxat (company_id filter) |
+| GET | `/api/products/paginated` | Pagination bilan |
+| POST | `/api/products/add` | Yangi mahsulot |
+| PUT | `/api/products/:id` | Yangilash |
+| DELETE | `/api/products/:id` | O'chirish |
+| POST | `/api/products/bulk-import` | Bulk import |
+| POST | `/api/products/:id/upload-image` | Rasm yuklash |
 
-### Users
-- `GET /api/users` - List all users
-- `POST /api/users` - Create/update user
-- `GET /api/users/:phone` - Get user by phone
-- `DELETE /api/users` - Delete all users
+### Foydalanuvchilar
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| GET | `/api/users` | Barcha users |
+| POST | `/api/users` | Yaratish/Yangilash |
+| GET | `/api/users/:phone` | Telefon bo'yicha |
 
-### Customer Orders
-- `GET /api/customer-orders` - List orders
-- `POST /api/customer-orders` - Create order
-- `PUT /api/customer-orders/:id/confirm-payment` - Confirm payment
-- `PUT /api/customer-orders/:id/cancel` - Cancel order
+### Buyurtmalar
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| GET | `/api/customer-orders` | Ro'yxat |
+| POST | `/api/customer-orders` | Yangi buyurtma |
+| PUT | `/api/customer-orders/:id/confirm-payment` | To'lovni tasdiqlash |
+| PUT | `/api/customer-orders/:id/cancel` | Bekor qilish |
 
-### Sales History
-- `GET /api/sales-history` - Get sales history
-- `POST /api/sales-history` - Record new sale
+### Sotuvlar
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| GET | `/api/sales-history` | Sotuvlar tarixi |
+| POST | `/api/sales-history` | Yangi sotuv |
 
-### Expenses
-- `GET /api/expenses` - Get company expenses
-- `POST /api/expenses` - Update expenses
+### Xarajatlar
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| GET | `/api/expenses` | Xarajatlar |
+| POST | `/api/expenses` | Yangilash |
 
-### User Cart, Receipts, Likes
-- `GET/POST /api/user-cart` - Cart operations
-- `GET/POST /api/user-receipts` - Receipt operations
-- `GET/POST /api/user-likes` - Likes operations
+### Savat, Cheklar, Likes
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| GET/POST | `/api/user-cart` | Savat |
+| GET/POST | `/api/user-receipts` | Cheklar |
+| GET/POST | `/api/user-likes` | Yoqtirilganlar |
 
-### Advertisements
-- `GET /api/ads` - List advertisements
-- `POST /api/ads` - Create advertisement
-- `PUT /api/ads/:id/approve` - Approve ad
-- `PUT /api/ads/:id/reject` - Reject ad
+### Reklamalar
+| Method | Endpoint | Tavsif |
+|--------|----------|--------|
+| GET | `/api/ads` | Ro'yxat |
+| POST | `/api/ads` | Yaratish |
+| PUT | `/api/ads/:id/approve` | Tasdiqlash |
+| PUT | `/api/ads/:id/reject` | Rad etish |
 
-## Quick Start
-
-### Prerequisites
-- Go 1.22+
-- PostgreSQL 15+
-- Docker (optional)
+## 🚀 Ishga Tushirish
 
 ### Local Development
 
-1. **Setup environment variables:**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database credentials
-   ```
+```bash
+# Environment sozlash
+cp .env.example .env
+# .env faylni tahrirlang
 
-2. **Install dependencies:**
-   ```bash
-   go mod download
-   ```
+# Dependencies
+go mod download
 
-3. **Run the server:**
-   ```bash
-   go run cmd/server/main.go
-   ```
+# Serverni ishga tushirish
+go run cmd/server/main.go
+```
 
-### Docker Development
+### Docker bilan
 
 ```bash
-# From project root
+# Loyiha root papkasidan
+cd ../docker
 docker-compose up --build
 ```
 
-The API will be available at `http://localhost:8080`
+API: `http://localhost:8080`
 
-## Environment Variables
+## ⚙️ Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
+| O'zgaruvchi | Tavsif | Default |
+|-------------|--------|---------|
 | `DATABASE_URL` | PostgreSQL connection string | - |
-| `JWT_SECRET` | Secret key for JWT tokens | - |
+| `JWT_SECRET` | JWT secret key | - |
 | `PORT` | Server port | 8080 |
-| `GIN_MODE` | Gin mode (debug/release) | debug |
-| `CORS_ORIGINS` | Allowed CORS origins | * |
-| `UPLOAD_DIR` | Directory for file uploads | ./uploads |
+| `GIN_MODE` | debug/release | debug |
+| `CORS_ORIGINS` | CORS origins | * |
+| `UPLOAD_DIR` | Uploads papkasi | ./uploads |
 
-## Database Schema
+## 📊 Database
 
-The database schema is defined in `migrations/001_init.sql` and includes:
+Database sxemasi `../database/migrations/` papkasida.
 
-- `companies` - Company information
-- `users` - Customer/user data
-- `products` - Product catalog
-- `customer_orders` - Customer orders
-- `sales_history` - Sales records
-- `expenses` - Company expenses
-- `company_custom_expenses` - Custom expense types
-- `user_cart` - Shopping carts
-- `user_receipts` - Purchase receipts
-- `user_likes` - Liked products
-- `advertisements` - Ads/promotions
-- `company_ratings` - Company ratings
+Asosiy jadvallar:
+- `companies` - Kompaniyalar
+- `products` - Mahsulotlar
+- `users` - Foydalanuvchilar
+- `customer_orders` - Buyurtmalar
+- `sales_history` - Sotuvlar
+- `expenses` - Xarajatlar
 
-## License
+## 🔒 Xavfsizlik
 
-MIT
+- JWT token bilan autentifikatsiya
+- CORS sozlamalari
+- Input validation
+- SQL injection himoyasi (parameterized queries)

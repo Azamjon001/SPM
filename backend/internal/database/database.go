@@ -33,17 +33,30 @@ func NewConnection(cfg *config.Config) (*pgxpool.Pool, error) {
 func RunMigrations(pool *pgxpool.Pool) error {
 	ctx := context.Background()
 
-	// Read migration files
-	migrationsDir := "migrations"
-	files, err := os.ReadDir(migrationsDir)
-	if err != nil {
-		// Try relative path from cmd/server
-		migrationsDir = "../../migrations"
-		files, err = os.ReadDir(migrationsDir)
-		if err != nil {
-			log.Printf("⚠️ No migrations directory found, skipping migrations")
-			return nil
+	// Read migration files - try multiple possible paths
+	migrationPaths := []string{
+		"migrations",                // Docker container
+		"../database/migrations",    // From backend folder
+		"../../database/migrations", // From cmd/server folder
+		"/app/migrations",           // Docker absolute path
+	}
+
+	var migrationsDir string
+	var files []os.DirEntry
+	var err error
+
+	for _, path := range migrationPaths {
+		files, err = os.ReadDir(path)
+		if err == nil {
+			migrationsDir = path
+			log.Printf("📁 Found migrations directory: %s", path)
+			break
 		}
+	}
+
+	if migrationsDir == "" {
+		log.Printf("⚠️ No migrations directory found in any of the expected paths, skipping migrations")
+		return nil
 	}
 
 	for _, file := range files {

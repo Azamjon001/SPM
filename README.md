@@ -1,44 +1,100 @@
-# Azaton E-Commerce Platform
+# 🛒 Azaton E-Commerce Platform
 
-A full-stack e-commerce platform with React frontend and Go backend.
+To'liq stack e-commerce platformasi - React frontend va Go backend bilan.
 
-## 🏗️ Architecture
+## 🏗️ Arxitektura
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   React/Vite    │────▶│    Go/Gin API   │────▶│   PostgreSQL    │
-│   Frontend      │     │    Backend      │     │   Database      │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-       :5173                  :8080                  :5432
+                    ┌─────────────────────────────────────────────────────────┐
+                    │                    AZATON PLATFORM                       │
+                    └─────────────────────────────────────────────────────────┘
+                                              │
+         ┌────────────────────────────────────┼────────────────────────────────────┐
+         │                                    │                                    │
+         ▼                                    ▼                                    ▼
+┌─────────────────┐              ┌─────────────────┐              ┌─────────────────┐
+│    FRONTEND     │              │     BACKEND     │              │    DATABASE     │
+│   React/Vite    │─────────────▶│    Go/Gin API   │─────────────▶│   PostgreSQL    │
+│   TypeScript    │              │    REST API     │              │   Migrations    │
+│   Tailwind      │              │    JWT Auth     │              │   Schemas       │
+└─────────────────┘              └─────────────────┘              └─────────────────┘
+    Port: 5173                       Port: 8080                       Port: 5432
 ```
 
-## ✨ Features
+## 📁 Loyiha Strukturasi
 
-- 🏪 **Multi-Company Support**: Each company has its own products, orders, and settings
-- 🛒 **Shopping Cart**: Persistent cart with offline support
-- 📦 **Inventory Management**: Full product CRUD with bulk operations
-- 💰 **Sales Analytics**: Revenue tracking, expense management
-- 👥 **Customer Management**: User registration and order history
-- 📱 **Mobile-First Design**: Responsive UI with Tailwind CSS
-- 🔐 **Authentication**: JWT-based auth with access key system
+```
+SPM/
+├── 🎨 frontend/              # React Frontend
+│   ├── src/
+│   │   ├── components/       # 60+ UI komponentlari
+│   │   ├── utils/            # API, cache, helpers
+│   │   ├── hooks/            # Custom React hooks
+│   │   └── styles/           # CSS fayllari
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── ⚙️ backend/               # Go Backend
+│   ├── cmd/server/           # Entry point
+│   ├── internal/
+│   │   ├── config/           # Konfiguratsiya
+│   │   ├── database/         # DB ulanish
+│   │   ├── handlers/         # API handlers
+│   │   ├── middleware/       # Auth middleware
+│   │   └── models/           # Data models
+│   └── go.mod
+│
+├── 🗄️ database/              # Database
+│   ├── migrations/           # SQL migratsiyalar
+│   ├── seeds/                # Test ma'lumotlar
+│   └── scripts/              # Backup skriptlari
+│
+├── 🐳 docker/                # Docker
+│   ├── docker-compose.yml    # Services orchestration
+│   ├── Dockerfile.frontend   # Frontend build
+│   ├── Dockerfile.backend    # Backend build
+│   └── nginx.conf            # Nginx config
+│
+└── 📚 docs/                  # Dokumentatsiya
+```
 
-## 🚀 Quick Start
+## ✨ Xususiyatlar
 
-### Using Docker (Recommended)
+| Xususiyat | Tavsif |
+|-----------|--------|
+| 🏪 Multi-Company | Har bir kompaniya o'z mahsulotlari bilan |
+| 🛒 Shopping Cart | Persistent savat |
+| 📦 Inventory | To'liq inventar boshqaruvi |
+| 💰 Analytics | Moliyaviy tahlillar |
+| 👥 Customers | Mijozlar boshqaruvi |
+| 📱 Mobile-First | Responsive dizayn |
+| 🔐 JWT Auth | Xavfsiz autentifikatsiya |
+| 🌍 i18n | Rus/O'zbek tillari |
+
+## 🚀 Tez Boshlash
+
+### Docker bilan (Tavsiya etiladi)
 
 ```bash
-# Clone and start all services
+# Loyihani klonlash
+git clone https://github.com/Azamjon001/SPM.git
+cd SPM
+
+# Docker bilan ishga tushirish
+cd docker
 docker-compose up --build
 ```
 
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8080
-- PostgreSQL: localhost:5432
+**URLs:**
+- 🌐 Frontend: http://localhost:5173
+- 🔌 Backend API: http://localhost:8080
+- 🗄️ PostgreSQL: localhost:5432
 
-### Manual Setup
+### Manual o'rnatish
 
 #### Frontend
 ```bash
+cd frontend
 npm install
 npm run dev
 ```
@@ -47,57 +103,95 @@ npm run dev
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env with your PostgreSQL credentials
+# .env ni tahrirlang
 go run cmd/server/main.go
 ```
 
-## 📁 Project Structure
-
-```
-azaton/
-├── src/                    # React frontend
-│   ├── components/         # UI components
-│   ├── utils/              # API client, utilities
-│   └── App.tsx             # Main app with routes
-├── backend/                # Go backend
-│   ├── cmd/server/         # Entry point
-│   ├── internal/           # Business logic
-│   │   ├── handlers/       # HTTP handlers
-│   │   ├── models/         # Data models
-│   │   └── middleware/     # Auth middleware
-│   └── migrations/         # SQL migrations
-├── docker-compose.yml      # Docker orchestration
-└── Dockerfile.frontend     # Frontend build
-```
-
-## 🔧 Tech Stack
+## 🔧 Texnologiyalar
 
 ### Frontend
-- **React 18** + TypeScript
-- **Vite 6** for fast development
-- **Tailwind CSS** for styling
-- **Radix UI** for accessible components
-- **React Router** for navigation
+| Texnologiya | Vazifasi |
+|-------------|----------|
+| React 18 | UI Framework |
+| TypeScript | Type Safety |
+| Vite 6 | Build Tool |
+| Tailwind CSS | Styling |
+| Radix UI | Accessible Components |
+| Recharts | Charts |
+| React Router 7 | Routing |
 
 ### Backend
-- **Go 1.22** with Gin framework
-- **PostgreSQL 15** database
-- **pgx/v5** for database access
-- **JWT** authentication
+| Texnologiya | Vazifasi |
+|-------------|----------|
+| Go 1.22 | Backend |
+| Gin | Web Framework |
+| pgx/v5 | PostgreSQL Driver |
+| JWT | Authentication |
 
-## 📚 API Documentation
+### Database
+| Texnologiya | Vazifasi |
+|-------------|----------|
+| PostgreSQL 15 | Database |
+| SQL Migrations | Schema Management |
 
-See [backend/README.md](backend/README.md) for full API documentation.
+### DevOps
+| Texnologiya | Vazifasi |
+|-------------|----------|
+| Docker | Containerization |
+| Docker Compose | Orchestration |
+| Nginx | Reverse Proxy |
 
-### Key Endpoints
-- `POST /api/companies/login` - Company login
-- `GET /api/products?company_id=X` - Get products
-- `POST /api/customer-orders` - Create order
-- `GET /api/sales-history?company_id=X` - Sales data
+## 📚 API Dokumentatsiya
 
-## 🔒 Environment Variables
+Batafsil API dokumentatsiya: [backend/README.md](backend/README.md)
 
-Create `.env` in project root:
+### Asosiy Endpointlar
+```
+POST   /api/companies/login         # Kirish
+GET    /api/products?company_id=X   # Mahsulotlar
+POST   /api/customer-orders         # Buyurtma
+GET    /api/sales-history           # Sotuvlar
+GET    /api/expenses                # Xarajatlar
+```
+
+## ⚙️ Environment Variables
+
+`docker/.env` faylda:
+
+```env
+# Database
+POSTGRES_DB=azaton
+POSTGRES_USER=azaton
+POSTGRES_PASSWORD=your_secure_password
+
+# Backend
+JWT_SECRET=your_jwt_secret
+GIN_MODE=release
+
+# Ports
+FRONTEND_PORT=5173
+BACKEND_PORT=8080
+DB_PORT=5432
+```
+
+## 📖 Qo'llanmalar
+
+- [Frontend README](frontend/README.md)
+- [Backend README](backend/README.md)
+- [Database README](database/README.md)
+- [Docker README](docker/README.md)
+
+## 🤝 Hissa Qo'shish
+
+1. Fork qiling
+2. Feature branch yarating (`git checkout -b feature/amazing`)
+3. Commit qiling (`git commit -m 'Add amazing feature'`)
+4. Push qiling (`git push origin feature/amazing`)
+5. Pull Request oching
+
+## 📄 Litsenziya
+
+MIT License - batafsil [LICENSE](LICENSE) faylida.
 
 ```env
 # Database
