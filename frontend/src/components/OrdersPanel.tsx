@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Receipt, Search, Users, DollarSign, Clock, CheckCircle, FileText, X } from 'lucide-react';
-import { getCustomerOrders, confirmOrderPayment, searchOrderByCode, getCompanyRevenue } from '../utils/api';
+import { CheckCircle, Clock, DollarSign, FileText, Receipt, Search, Users, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { confirmOrderPayment, getCompanyRevenue, getCustomerOrders, searchOrderByCode } from '../utils/api';
 import { formatUzbekistanFullDateTime } from '../utils/uzbekTime';
 
 interface Order {
@@ -40,7 +40,7 @@ export default function OrdersPanel({ companyId }: OrdersPanelProps) {
   useEffect(() => {
     loadOrders();
     loadRevenue();
-    
+
     // 🔄 Auto-refresh every 30 seconds (вместо 10) - меньше нагрузка
     console.log('🔄 [Orders Panel] Setting up auto-refresh every 30 seconds');
     const intervalId = setInterval(() => {
@@ -48,7 +48,7 @@ export default function OrdersPanel({ companyId }: OrdersPanelProps) {
       loadOrders();
       loadRevenue();
     }, 30000); // 30 seconds вместо 10
-    
+
     // Cleanup on unmount
     return () => {
       console.log('🛑 [Orders Panel] Stopping auto-refresh');
@@ -60,21 +60,21 @@ export default function OrdersPanel({ companyId }: OrdersPanelProps) {
     try {
       const ordersData = await getCustomerOrders(companyId);
       setOrders(ordersData);
-      
+
       // 🔍 ДИАГНОСТИКА: Показываем статус всех заказов
       console.log('\n' + '='.repeat(80));
       console.log('📋 [Orders Panel] СТАТУС ЗАКАЗОВ:');
       console.log('='.repeat(80));
       console.log(`📦 Всего заказов: ${ordersData.length}`);
-      
+
       const pending = ordersData.filter(o => o.status === 'pending').length;
       const paid = ordersData.filter(o => o.status === 'paid').length;
       const cancelled = ordersData.filter(o => o.status === 'cancelled').length;
-      
+
       console.log(`⏳ Ожидают подтверждения: ${pending}`);
       console.log(`✅ Подтверждены: ${paid}`);
       console.log(`❌ Отменены: ${cancelled}`);
-      
+
       if (pending > 0) {
         console.log('\n⚠️ ВНИМАНИЕ! Есть неподтвержденные заказы:');
         ordersData
@@ -180,32 +180,30 @@ export default function OrdersPanel({ companyId }: OrdersPanelProps) {
   };
 
   const renderOrder = (order: Order) => (
-    <div 
-      key={order.id} 
-      className={`rounded-lg p-6 border-2 ${
-        order.status === 'cancelled'
+    <div
+      key={order.id}
+      className={`rounded-lg p-6 border-2 ${order.status === 'cancelled'
           ? 'bg-red-50 border-red-200'
-          : order.status === 'pending' 
-            ? 'bg-orange-50 border-orange-200' 
+          : order.status === 'pending'
+            ? 'bg-orange-50 border-orange-200'
             : 'bg-green-50 border-green-200'
-      }`}
+        }`}
     >
       {/* Order Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <h3>Чек #{order.order_code || order.id}</h3>
-            <span className={`px-3 py-1 rounded-full text-xs text-white ${
-              order.status === 'cancelled'
+            <span className={`px-3 py-1 rounded-full text-xs text-white ${order.status === 'cancelled'
                 ? 'bg-red-600'
-                : order.status === 'pending' 
-                  ? 'bg-orange-600' 
+                : order.status === 'pending'
+                  ? 'bg-orange-600'
                   : 'bg-green-600'
-            }`}>
-              {order.status === 'cancelled' 
-                ? 'ОТМЕНЁН' 
-                : order.status === 'pending' 
-                  ? 'Ожидает оплаты' 
+              }`}>
+              {order.status === 'cancelled'
+                ? 'ОТМЕНЁН'
+                : order.status === 'pending'
+                  ? 'Ожидает оплаты'
                   : 'Оплачено'}
             </span>
           </div>
@@ -232,24 +230,22 @@ export default function OrdersPanel({ companyId }: OrdersPanelProps) {
           </div>
         </div>
         <div className="text-right">
-          <div className={`text-2xl mb-2 ${
-            order.status === 'cancelled'
+          <div className={`text-2xl mb-2 ${order.status === 'cancelled'
               ? 'text-red-600'
-              : order.status === 'pending' 
-                ? 'text-orange-600' 
+              : order.status === 'pending'
+                ? 'text-orange-600'
                 : 'text-green-600'
-          }`}>
+            }`}>
             {formatPrice(order.total_amount)}
           </div>
           {order.status === 'pending' && (
             <button
               onClick={() => handleConfirmPayment(order.id)}
               disabled={processingOrderId === order.id}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${
-                processingOrderId === order.id
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${processingOrderId === order.id
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-green-600 hover:bg-green-700'
-              } text-white`}
+                } text-white`}
             >
               <DollarSign className="w-5 h-5" />
               {processingOrderId === order.id ? 'Обработка...' : 'Оплата получена'}
@@ -259,13 +255,12 @@ export default function OrdersPanel({ companyId }: OrdersPanelProps) {
       </div>
 
       {/* Order Items */}
-      <div className={`border-t pt-4 ${
-        order.status === 'cancelled'
+      <div className={`border-t pt-4 ${order.status === 'cancelled'
           ? 'border-red-200'
-          : order.status === 'pending' 
-            ? 'border-orange-200' 
+          : order.status === 'pending'
+            ? 'border-orange-200'
             : 'border-green-200'
-      }`}>
+        }`}>
         <div className="text-sm text-gray-600 mb-2">Товары в заказе:</div>
         <div className="space-y-2">
           {order.items.map((item: any, index: number) => (
@@ -290,11 +285,11 @@ export default function OrdersPanel({ companyId }: OrdersPanelProps) {
   );
 
   if (loading) {
-    return <div className="text-center py-12">Загрузка...</div>;
+    return <div className="text-center py-12 text-gray-600">Загрузка...</div>;
   }
 
   return (
-    <div>
+    <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-4">
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <div className="bg-white rounded-lg shadow-sm p-6">
@@ -357,44 +352,40 @@ export default function OrdersPanel({ companyId }: OrdersPanelProps) {
         <div className="flex gap-4 flex-wrap">
           <button
             onClick={() => setFilterStatus('all')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${
-              filterStatus === 'all'
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${filterStatus === 'all'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+              }`}
           >
             <Receipt className="w-5 h-5" />
             Все заказы ({orders.length})
           </button>
           <button
             onClick={() => setFilterStatus('pending')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${
-              filterStatus === 'pending'
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${filterStatus === 'pending'
                 ? 'bg-orange-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+              }`}
           >
             <Clock className="w-5 h-5" />
             Ожидают ({getPendingOrders().length})
           </button>
           <button
             onClick={() => setFilterStatus('confirmed')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${
-              filterStatus === 'confirmed'
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${filterStatus === 'confirmed'
                 ? 'bg-green-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+              }`}
           >
             <CheckCircle className="w-5 h-5" />
             Оплачено ({getConfirmedOrders().length})
           </button>
           <button
             onClick={() => setFilterStatus('cancelled')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${
-              filterStatus === 'cancelled'
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${filterStatus === 'cancelled'
                 ? 'bg-red-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+              }`}
           >
             <X className="w-5 h-5" />
             Отменённые ({getCancelledOrders().length})

@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { CacheProvider } from './utils/cache';
-import { ThemeProvider } from './utils/ThemeContext';
-import LoginPage from './components/LoginPage';
-import SmsVerification from './components/SmsVerification';
-import CompanyLogin from './components/CompanyLogin';
+import { useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import AdminPanel from './components/AdminPanel';
 import CompanyKeyVerification from './components/CompanyKeyVerification';
+import CompanyLogin from './components/CompanyLogin';
+import CompanyModeSelector from './components/CompanyModeSelector';
+import CompanyPanel from './components/CompanyPanel';
+import CompanyRegistrationForm from './components/CompanyRegistrationForm';
+import CustomerRegistrationModeSelector from './components/CustomerRegistrationModeSelector';
 import HomePage from './components/HomePage';
 import LikesPage from './components/LikesPage';
-import SettingsPage from './components/SettingsPage';
-import AdminPanel from './components/AdminPanel';
-import CompanyPanel from './components/CompanyPanel';
 import LoadingScreen from './components/LoadingScreen';
-import PaymentPage from './components/PaymentPage';
+import LoginPage from './components/LoginPage';
 import MobileOptimization from './components/MobileOptimization';
-import CompanyModeSelector from './components/CompanyModeSelector';
-import CompanyRegistrationForm from './components/CompanyRegistrationForm';
+import PaymentPage from './components/PaymentPage';
 import PrivateCompanyAccess from './components/PrivateCompanyAccess';
-import CustomerRegistrationModeSelector from './components/CustomerRegistrationModeSelector';
-import { loginCompany, verifyCompanyAccess, getCompanies, addCompany, getUserLikes, checkServerHealth, getCompanyByCompanyId } from './utils/api';
+import SettingsPage from './components/SettingsPage';
+import SmsVerification from './components/SmsVerification';
+import { addCompany, checkServerHealth, getCompanies, getCompanyByCompanyId, getUserLikes, loginCompany, verifyCompanyAccess } from './utils/api';
+import { CacheProvider } from './utils/cache';
 import { subscribeToReload } from './utils/reloadBroadcast';
+import { ThemeProvider } from './utils/ThemeContext';
 
 type UserType = 'customer' | 'admin' | 'company' | null;
 
@@ -41,21 +41,21 @@ function AppContent() {
   const [pendingUser, setPendingUser] = useState<any>(null);
   const [currentCompany, setCurrentCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // 🔒 ПРИВАТНОСТЬ: Состояния
   const [selectedCompanyMode, setSelectedCompanyMode] = useState<'public' | 'private' | null>(null);
   const [privateCompanyId, setPrivateCompanyId] = useState<string | null>(null);
   const [customerRegistrationMode, setCustomerRegistrationMode] = useState<'public' | 'private' | null>(null);
-  
+
   // Likes & Cart state
   const [likedProductIds, setLikedProductIds] = useState<number[]>([]);
   const [cart, setCart] = useState<{ [key: number]: number }>({});
-  
+
   const [selectedColors, setSelectedColors] = useState<{ [key: number]: string }>(() => {
     const saved = localStorage.getItem('selectedColors');
     return saved ? JSON.parse(saved) : {};
   });
-  
+
   const [viewingImage, setViewingImage] = useState<{ url: string; name: string } | null>(null);
   const [viewingImageIndex, setViewingImageIndex] = useState(0);
 
@@ -100,11 +100,11 @@ function AppContent() {
   const initializeApp = async () => {
     const startTime = Date.now();
     const MINIMUM_LOADING_TIME = 4600;
-    
+
     try {
       await checkServerHealth();
       const savedSession = localStorage.getItem('userSession');
-      
+
       if (savedSession) {
         try {
           const session = JSON.parse(savedSession);
@@ -116,7 +116,7 @@ function AppContent() {
               setLikedProductIds(savedLikes || []);
             }
             if (location.pathname === '/' || location.pathname === '/login') {
-                navigate('/main');
+              navigate('/main');
             }
           } else if (session.userType === 'admin') {
             setPendingUser(session.userData);
@@ -136,19 +136,19 @@ function AppContent() {
       // Check companies (lightweight check mainly for first run logic)
       const companies = await getCompanies();
       if (!companies || companies.length === 0) {
-          // Logic for first company creation if needed
-          const defaultKey = generateKey();
-          try {
-             await addCompany({
-                name: 'Главная компания',
-                phone: '909383572',
-                password: '24067',
-                access_key: defaultKey
-             });
-             console.log('Default company created with key:', defaultKey);
-          } catch(e) { /* ignore */ }
+        // Logic for first company creation if needed
+        const defaultKey = generateKey();
+        try {
+          await addCompany({
+            name: 'Главная компания',
+            phone: '909383572',
+            password: '24067',
+            access_key: defaultKey
+          });
+          console.log('Default company created with key:', defaultKey);
+        } catch (e) { /* ignore */ }
       }
-      
+
     } catch (error) {
       console.error('❌ Error initializing app:', error);
     } finally {
@@ -192,9 +192,9 @@ function AppContent() {
           alert('❌ Компания не найдена.'); return;
         }
       }
-      
+
       const { addUser } = await import('./utils/api');
-      const response = await addUser({ 
+      const response = await addUser({
         first_name: userData.firstName,
         last_name: userData.lastName,
         phone_number: userData.phone,
@@ -202,17 +202,17 @@ function AppContent() {
       });
 
       const updatedUser = {
-          ...userData,
-          id: response.user?.id,
-          firstName: response.user?.first_name || userData.firstName,
-          lastName: response.user?.last_name || userData.lastName,
-          companyId: response.user?.company_id
+        ...userData,
+        id: response.user?.id,
+        firstName: response.user?.first_name || userData.firstName,
+        lastName: response.user?.last_name || userData.lastName,
+        companyId: response.user?.company_id
       };
 
       setPendingUser(updatedUser);
       const savedLikes = await getUserLikes(userData.phone).catch(() => []);
       setLikedProductIds(savedLikes || []);
-      
+
       setUserType('customer');
       localStorage.setItem('userSession', JSON.stringify({
         userType: 'customer',
@@ -233,23 +233,23 @@ function AppContent() {
     } else {
       try {
         const { addUser } = await import('./utils/api');
-        const response = await addUser({ 
+        const response = await addUser({
           first_name: pendingUser.firstName,
           last_name: pendingUser.lastName,
           phone_number: pendingUser.phone
         });
-        
+
         const updatedUser = {
-            ...pendingUser,
-            id: response.user?.id,
-            firstName: response.user?.first_name || pendingUser.firstName,
-            lastName: response.user?.last_name || pendingUser.lastName
+          ...pendingUser,
+          id: response.user?.id,
+          firstName: response.user?.first_name || pendingUser.firstName,
+          lastName: response.user?.last_name || pendingUser.lastName
         };
 
         setPendingUser(updatedUser);
         const savedLikes = await getUserLikes(pendingUser.phone).catch(() => []);
         setLikedProductIds(savedLikes || []);
-        
+
         setUserType('customer');
         localStorage.setItem('userSession', JSON.stringify({
           userType: 'customer',
@@ -282,6 +282,7 @@ function AppContent() {
     }
     try {
       const company = await verifyCompanyAccess(currentCompany.id, key);
+      setCurrentCompany(company); // ✅ ВАЖНО: Обновляем currentCompany!
       setUserType('company');
       localStorage.setItem('userSession', JSON.stringify({ userType: 'company', companyData: company }));
       navigate('/company/dashboard');
@@ -308,170 +309,178 @@ function AppContent() {
     <div className="min-h-screen bg-gray-50">
       <Routes>
         <Route path="/" element={
-           <CustomerRegistrationModeSelector
-              onSelectPublic={() => { setCustomerRegistrationMode('public'); navigate('/login'); }}
-              onSelectPrivate={() => { setCustomerRegistrationMode('private'); navigate('/login'); }}
-              onSwitchToCompany={() => navigate('/company/login')}
-            />
+          <CustomerRegistrationModeSelector
+            onSelectPublic={() => { setCustomerRegistrationMode('public'); navigate('/login'); }}
+            onSelectPrivate={() => { setCustomerRegistrationMode('private'); navigate('/login'); }}
+            onSwitchToCompany={() => navigate('/company/login')}
+          />
         } />
-        
+
         <Route path="/login" element={
-            <LoginPage 
-              onLogin={handleUserLogin}
-              onSwitchToCompany={() => navigate('/company/login')}
-              isPrivateMode={customerRegistrationMode === 'private'}
-              onBack={() => navigate('/')}
-            />
+          <LoginPage
+            onLogin={handleUserLogin}
+            onSwitchToCompany={() => navigate('/company/login')}
+            isPrivateMode={customerRegistrationMode === 'private'}
+            onBack={() => navigate('/')}
+          />
         } />
 
         <Route path="/sms" element={
-            <SmsVerification 
-              phone={pendingUser?.phone}
-              onVerify={handleSmsVerify}
-              onBack={() => navigate('/login')}
-            />
+          <SmsVerification
+            phone={pendingUser?.phone}
+            onVerify={handleSmsVerify}
+            onBack={() => navigate('/login')}
+          />
         } />
 
         <Route path="/main" element={
-            <HomePage 
-              onLogout={handleLogout}
-              userName={pendingUser ? `${pendingUser.firstName} ${pendingUser.lastName}` : undefined}
-              userPhone={pendingUser?.phone}
-              userCompanyId={pendingUser?.companyId}
-              onOpenSettings={() => navigate('/settings')}
-              onNavigateTo={(page) => {
-                  if (page === 'settings') navigate('/settings');
-                  else if (page === 'likes') navigate('/favourites');
-                  else if (page === 'home') navigate('/main');
-              }}
-              onLikesChange={setLikedProductIds}
-              likedProductIds={likedProductIds}
-              setLikedProductIds={setLikedProductIds}
-              cart={cart}
-              setCart={setCart}
-              selectedColors={selectedColors}
-              setSelectedColors={setSelectedColors}
-            />
+          <HomePage
+            onLogout={handleLogout}
+            userName={pendingUser ? `${pendingUser.firstName} ${pendingUser.lastName}` : undefined}
+            userPhone={pendingUser?.phone}
+            userCompanyId={pendingUser?.companyId}
+            onOpenSettings={() => navigate('/settings')}
+            onNavigateTo={(page) => {
+              if (page === 'settings') navigate('/settings');
+              else if (page === 'likes') navigate('/favourites');
+              else if (page === 'home') navigate('/main');
+            }}
+            onLikesChange={setLikedProductIds}
+            likedProductIds={likedProductIds}
+            setLikedProductIds={setLikedProductIds}
+            cart={cart}
+            setCart={setCart}
+            selectedColors={selectedColors}
+            setSelectedColors={setSelectedColors}
+          />
         } />
 
         <Route path="/favourites" element={
-            <LikesPage 
-              likedProductIds={likedProductIds}
-              setLikedProductIds={setLikedProductIds}
-              cart={cart}
-              setCart={setCart}
-              selectedColors={selectedColors}
-              setSelectedColors={setSelectedColors}
-              onBackToHome={() => navigate('/main')}
-              onLogout={handleLogout}
-              userName={pendingUser ? `${pendingUser.firstName} ${pendingUser.lastName}` : undefined}
-              userPhone={pendingUser?.phone}
-              viewingImage={viewingImage}
-              setViewingImage={setViewingImage}
-              viewingImageIndex={viewingImageIndex}
-              setViewingImageIndex={setViewingImageIndex}
-              onNavigateTo={(page) => {
-                if (page === 'home') navigate('/main');
-                else if (page === 'cart') {
-                    // Cart logic
-                    localStorage.setItem('openCartOnLoad', 'true');
-                    navigate('/main');
-                } else if (page === 'settings') navigate('/settings');
-              }}
-            />
+          <LikesPage
+            likedProductIds={likedProductIds}
+            setLikedProductIds={setLikedProductIds}
+            cart={cart}
+            setCart={setCart}
+            selectedColors={selectedColors}
+            setSelectedColors={setSelectedColors}
+            onBackToHome={() => navigate('/main')}
+            onLogout={handleLogout}
+            userName={pendingUser ? `${pendingUser.firstName} ${pendingUser.lastName}` : undefined}
+            userPhone={pendingUser?.phone}
+            viewingImage={viewingImage}
+            setViewingImage={setViewingImage}
+            viewingImageIndex={viewingImageIndex}
+            setViewingImageIndex={setViewingImageIndex}
+            onNavigateTo={(page) => {
+              if (page === 'home') navigate('/main');
+              else if (page === 'cart') {
+                // Cart logic
+                localStorage.setItem('openCartOnLoad', 'true');
+                navigate('/main');
+              } else if (page === 'settings') navigate('/settings');
+            }}
+          />
         } />
 
         <Route path="/settings" element={
-            <SettingsPage 
-              onLogout={handleLogout}
-              userName={pendingUser ? `${pendingUser.firstName} ${pendingUser.lastName}` : undefined}
-              userPhone={pendingUser?.phone}
-              onBackToHome={() => navigate('/main')}
-              onNavigateTo={(page) => {
-                if (page === 'home') navigate('/main');
-                if (page === 'likes') navigate('/favourites');
-              }}
-            />
+          <SettingsPage
+            onLogout={handleLogout}
+            userName={pendingUser ? `${pendingUser.firstName} ${pendingUser.lastName}` : undefined}
+            userPhone={pendingUser?.phone}
+            onBackToHome={() => navigate('/main')}
+            onNavigateTo={(page) => {
+              if (page === 'home') navigate('/main');
+              if (page === 'likes') navigate('/favourites');
+            }}
+          />
         } />
 
         <Route path="/company/login" element={
-            <CompanyLogin 
-              onLogin={handleCompanyLogin}
-              onSwitchToCustomer={() => navigate('/login')}
-            />
+          <CompanyLogin
+            onLogin={handleCompanyLogin}
+            onSwitchToCustomer={() => navigate('/login')}
+          />
         } />
 
         <Route path="/company/verify" element={
-            <CompanyKeyVerification 
-              onVerify={handleCompanyKeyVerify}
-              onBack={() => navigate('/company/login')}
-            />
+          <CompanyKeyVerification
+            onVerify={handleCompanyKeyVerify}
+            onBack={() => navigate('/company/login')}
+          />
         } />
 
         <Route path="/company/dashboard" element={
-            currentCompany ? (
-                <CompanyPanel 
-                    onLogout={handleLogout} 
-                    companyId={currentCompany.id}
-                    companyName={currentCompany.name}
-                />
-            ) : <Navigate to="/company/login" />
+          currentCompany ? (
+            <>
+              {console.log('🔥 [App] Rendering CompanyPanel with:', currentCompany)}
+              <CompanyPanel
+                onLogout={handleLogout}
+                companyId={currentCompany.id}
+                companyName={currentCompany.name}
+              />
+            </>
+          ) : (
+            <>
+              {console.log('⚠️ [App] No currentCompany, redirecting to login')}
+              <Navigate to="/company/login" />
+            </>
+          )
         } />
 
         <Route path="/admin" element={
-            <AdminPanel onLogout={handleLogout} />
+          <AdminPanel onLogout={handleLogout} />
         } />
 
         <Route path="/payment" element={
-             <PaymentPage 
-              onBackToHome={() => navigate('/main')}
-              onLogout={handleLogout}
-              userName={pendingUser ? `${pendingUser.firstName} ${pendingUser.lastName}` : undefined}
-              userPhone={pendingUser?.phone}
-            />
+          <PaymentPage
+            onBackToHome={() => navigate('/main')}
+            onLogout={handleLogout}
+            userName={pendingUser ? `${pendingUser.firstName} ${pendingUser.lastName}` : undefined}
+            userPhone={pendingUser?.phone}
+          />
         } />
 
         <Route path="/company/mode" element={
-             <CompanyModeSelector
-              onSelectMode={(mode) => {
-                setSelectedCompanyMode(mode);
-                navigate('/company/register');
-              }}
-            />
+          <CompanyModeSelector
+            onSelectMode={(mode) => {
+              setSelectedCompanyMode(mode);
+              navigate('/company/register');
+            }}
+          />
         } />
 
         <Route path="/company/register" element={
-             selectedCompanyMode ? (
-                <CompanyRegistrationForm
-                mode={selectedCompanyMode}
-                onBack={() => navigate('/company/mode')}
-                onSubmit={async (data) => {
-                    try {
-                    await addCompany(data);
-                    alert(`✅ Компания "${data.name}" успешно создана!`);
-                    setSelectedCompanyMode(null);
-                    navigate('/login');
-                    } catch (error: any) {
-                    alert('Ошибка: ' + (error.message || 'Не удалось создать компанию'));
-                    }
-                }}
-                />
-             ) : <Navigate to="/company/mode" />
+          selectedCompanyMode ? (
+            <CompanyRegistrationForm
+              mode={selectedCompanyMode}
+              onBack={() => navigate('/company/mode')}
+              onSubmit={async (data) => {
+                try {
+                  await addCompany(data);
+                  alert(`✅ Компания "${data.name}" успешно создана!`);
+                  setSelectedCompanyMode(null);
+                  navigate('/login');
+                } catch (error: any) {
+                  alert('Ошибка: ' + (error.message || 'Не удалось создать компанию'));
+                }
+              }}
+            />
+          ) : <Navigate to="/company/mode" />
         } />
 
         <Route path="/private-access" element={
-            <PrivateCompanyAccess
-              onAccessGranted={async (companyId) => {
-                const company = await getCompanyByCompanyId(companyId);
-                setPrivateCompanyId(companyId);
-                alert(`✅ Доступ получен к компании: ${company.name}`);
-                navigate('/main');
-              }}
-              onBack={() => navigate('/login')}
-            />
+          <PrivateCompanyAccess
+            onAccessGranted={async (companyId) => {
+              const company = await getCompanyByCompanyId(companyId);
+              setPrivateCompanyId(companyId);
+              alert(`✅ Доступ получен к компании: ${company.name}`);
+              navigate('/main');
+            }}
+            onBack={() => navigate('/login')}
+          />
         } />
 
-         {/* Fallback */}
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>

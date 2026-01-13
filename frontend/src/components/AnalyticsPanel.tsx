@@ -840,7 +840,7 @@ export default function AnalyticsPanel({ companyId }: AnalyticsPanelProps) {
   }
 
   return (
-    <div>
+    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4">
       {/* 📑 Вкладки */}
       <div className="bg-white rounded-lg shadow-sm mb-6 p-2 flex gap-2">
         <button

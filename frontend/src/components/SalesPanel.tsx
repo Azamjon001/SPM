@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { TrendingUp, Package, Search, Users, CheckSquare, Square, ShoppingCart, Receipt, DollarSign, FileText, Clock, X } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { getProducts, toggleProductCustomerAvailability, bulkToggleCustomerAvailability, getCustomerOrders, confirmOrderPayment, getSalesHistory, searchOrderByCode } from '../utils/api';
-import { getUzbekistanToday, toUzbekistanDate, formatUzbekistanFullDateTime } from '../utils/uzbekTime';
+import { CheckSquare, Clock, DollarSign, Package, Receipt, Search, ShoppingCart, Square, Users, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { bulkToggleCustomerAvailability, confirmOrderPayment, getCustomerOrders, getProducts, getSalesHistory, searchOrderByCode, toggleProductCustomerAvailability } from '../utils/api';
 import { getCurrentLanguage, useTranslation, type Language } from '../utils/translations'; // 🌍 Локализация
+import { formatUzbekistanFullDateTime, getUzbekistanToday, toUzbekistanDate } from '../utils/uzbekTime';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface Product {
   id: number;
@@ -53,14 +53,14 @@ export default function SalesPanel({ companyId }: SalesPanelProps) {
 
   useEffect(() => {
     loadData();
-    
+
     // 🔄 Auto-refresh every 10 seconds
     console.log('🔄 [Sales Panel] Setting up auto-refresh every 10 seconds');
     const intervalId = setInterval(() => {
       console.log('🔄 [Sales Panel] Auto-refreshing data...');
       loadData();
     }, 10000); // 10 seconds
-    
+
     // Cleanup on unmount
     return () => {
       console.log('🛑 [Sales Panel] Stopping auto-refresh');
@@ -97,29 +97,29 @@ export default function SalesPanel({ companyId }: SalesPanelProps) {
 
   const getTodaysSales = () => {
     const today = getUzbekistanToday();
-    
+
     // Calculate company sales from sales_history
     const companySales = salesHistory
       .filter(sale => toUzbekistanDate(sale.sale_date)?.toDateString() === today)
       .reduce((sum, sale) => sum + sale.total_amount, 0);
-    
+
     // Calculate customer orders from customer_orders
     const customerSales = customerOrders
       .filter(order => toUzbekistanDate(order.order_date)?.toDateString() === today)
       .reduce((sum, order) => sum + order.total_amount, 0);
-    
+
     // Return total of both
     return companySales + customerSales;
   };
 
   const filteredProducts = products.filter(product => {
     if (!searchQuery.trim()) return true;
-    
+
     const query = searchQuery.toLowerCase().trim();
     const name = product.name.toLowerCase();
     const price = product.price.toString();
     const quantity = product.quantity.toString();
-    
+
     return name.includes(query) || price.includes(query) || quantity.includes(query);
   });
 
@@ -127,8 +127,8 @@ export default function SalesPanel({ companyId }: SalesPanelProps) {
     try {
       const result = await toggleProductCustomerAvailability(productId);
       // Update local state
-      setProducts(products.map(p => 
-        p.id === productId 
+      setProducts(products.map(p =>
+        p.id === productId
           ? { ...p, available_for_customers: result.available_for_customers }
           : p
       ));
@@ -172,20 +172,20 @@ export default function SalesPanel({ companyId }: SalesPanelProps) {
     try {
       console.log(`🚀 [Sales Panel] Making ${selectedForSale.size} products available for customers...`);
       const startTime = Date.now();
-      
+
       // Toggle availability for all selected products
       const productIds = Array.from(selectedForSale);
       const result = await bulkToggleCustomerAvailability(productIds, true); // true = make available
-      
+
       const endTime = Date.now();
       const duration = ((endTime - startTime) / 1000).toFixed(2);
-      
+
       console.log(`✅ [Sales Panel] Completed in ${duration} seconds!`);
 
       // Reset
       setSelectedForSale(new Set());
       setShowSaleModal(false);
-      
+
       // ✅ НОВАЯ СИСТЕМА: Данные обновлены в Supabase! Перезагружаем!
       console.log('🔄 [Sales Panel] Reloading data from Supabase...');
       await loadData();
@@ -261,7 +261,7 @@ export default function SalesPanel({ companyId }: SalesPanelProps) {
   };
 
   return (
-    <div>
+    <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4">
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="bg-white rounded-lg shadow-sm p-6">
@@ -306,30 +306,30 @@ export default function SalesPanel({ companyId }: SalesPanelProps) {
                 alert('Выберите товары для снятия с продажи');
                 return;
               }
-              
+
               if (!confirm(`Убрать ${selectedForSale.size} товаров из панели покупателей?`)) {
                 return;
               }
-              
+
               try {
                 console.log(`🚫 [Sales Panel] Removing ${selectedForSale.size} products from customer view...`);
                 const startTime = Date.now();
-                
+
                 const productIds = Array.from(selectedForSale);
                 await bulkToggleCustomerAvailability(productIds, false); // false = make unavailable
-                
+
                 const endTime = Date.now();
                 const duration = ((endTime - startTime) / 1000).toFixed(2);
-                
+
                 console.log(`✅ [Sales Panel] Removed in ${duration} seconds!`);
-                
+
                 setSelectedForSale(new Set());
-                
+
                 // ✅ НОВАЯ СИСТЕМА: Данные обновлены в Supabase! Перезагружаем!
                 console.log('🔄 [Sales Panel] Reloading data from Supabase...');
                 await loadData();
                 console.log('✅ [Sales Panel] Data reloaded!');
-                
+
                 alert(`✅ Успешно убрано!\n\n${productIds.length} товаров скрыты от покупателей\nВремя: ${duration} секунд`);
               } catch (error) {
                 console.error('Error removing products from sale:', error);
@@ -345,11 +345,10 @@ export default function SalesPanel({ companyId }: SalesPanelProps) {
           <button
             onClick={handleSelectAll}
             disabled={products.length === 0}
-            className={`flex items-center gap-2 text-white px-6 py-3 rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed ${
-              selectedForSale.size === products.length && products.length > 0
+            className={`flex items-center gap-2 text-white px-6 py-3 rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed ${selectedForSale.size === products.length && products.length > 0
                 ? 'bg-green-600 hover:bg-green-700'
                 : 'bg-purple-600 hover:bg-purple-700'
-            }`}
+              }`}
           >
             {selectedForSale.size === products.length && products.length > 0 ? (
               <>
@@ -478,7 +477,7 @@ export default function SalesPanel({ companyId }: SalesPanelProps) {
                     <Square className="w-5 h-5 text-gray-400" />
                   )}
                 </button>
-                
+
                 <ImageWithFallback
                   src="https://images.unsplash.com/photo-1705495140141-d955bab1ebf0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9kdWN0JTIwYm94JTIwcGFja2FnZXxlbnwxfHx8fDE3NjUzNDk0OTR8MA&ixlib=rb-4.1.0&q=80&w=1080"
                   alt={product.name}
@@ -508,11 +507,10 @@ export default function SalesPanel({ companyId }: SalesPanelProps) {
                 {/* Customer Availability Toggle */}
                 <button
                   onClick={() => handleToggleCustomerAvailability(product.id)}
-                  className={`w-full flex items-center justify-center gap-2 py-2 rounded transition-colors text-sm ${
-                    product.available_for_customers
+                  className={`w-full flex items-center justify-center gap-2 py-2 rounded transition-colors text-sm ${product.available_for_customers
                       ? 'bg-green-100 text-green-700 hover:bg-green-200'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   <Users className="w-4 h-4" />
                   {product.available_for_customers ? 'Доступен покупателям' : 'Выставить для покупателей'}
@@ -557,11 +555,10 @@ export default function SalesPanel({ companyId }: SalesPanelProps) {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className={`px-3 py-1 rounded text-sm ${
-                          product.available_for_customers 
-                            ? 'bg-green-100 text-green-700' 
+                        <div className={`px-3 py-1 rounded text-sm ${product.available_for_customers
+                            ? 'bg-green-100 text-green-700'
                             : 'bg-gray-100 text-gray-700'
-                        }`}>
+                          }`}>
                           {product.available_for_customers ? 'Уже в продаже' : 'Будет выставлен'}
                         </div>
                       </div>

@@ -78,6 +78,26 @@ export const realtimeManager = {
       clearInterval(interval);
       realtimeManager.intervals.delete(channel);
     }
+  },
+
+  // 🚀 Подписка на обновления товаров компании (polling)
+  subscribeToProducts: (companyId: number) => {
+    const channel = `products_${companyId}`;
+    if (realtimeManager.intervals.has(channel)) return; // Уже подписаны
+
+    console.log(`📡 [Realtime] Subscribing to products for company ${companyId}`);
+
+    realtimeManager.startPolling(
+      channel,
+      () => api.getProducts(companyId),
+      30000 // Обновление каждые 30 секунд
+    );
+  },
+
+  // 🛑 Отписка от обновлений товаров
+  unsubscribeFromProducts: (companyId: number) => {
+    const channel = `products_${companyId}`;
+    realtimeManager.stopPolling(channel);
   }
 };
 
@@ -524,14 +544,18 @@ export function useCompanyProducts(companyId: number) {
 
   // 🚀 Включаем Realtime для этой компании
   if (typeof window !== 'undefined') {
-    realtimeManager.subscribeToProducts(companyId);
+    try {
+      realtimeManager.subscribeToProducts(companyId);
+    } catch (e) {
+      console.warn('Не удалось подписаться на realtime:', e);
+    }
   }
 
   return useQuery({
     queryKey: ['company-products', companyId],
     queryFn: async () => {
       // 1️⃣ Проверяем RAM кэш (САМОЕ БЫСТРОЕ!)
-      const ramData = ramCache.get<any[]>(cacheKey);
+      const ramData = ramCache.get('products', companyId);
       if (ramData) {
         console.log(`⚡⚡⚡ [RAM CACHE HIT] Товары компании ${companyId} из RAM!`);
         return ramData;
@@ -543,14 +567,16 @@ export function useCompanyProducts(companyId: number) {
         console.log(`⚡ [CACHE HIT] Товары компании ${companyId} из localStorage!`);
 
         // Сохраняем в RAM для следующих вызовов
-        ramCache.set(cacheKey, cached, 3 * 60 * 1000); // 3 минуты в RAM
+        ramCache.set('products', companyId, cached);
 
         // Фоновое обновление
         setTimeout(() => {
           api.getProducts(companyId).then(products => {
-            ramCache.set(cacheKey, products, 3 * 60 * 1000);
+            ramCache.set('products', companyId, products);
             localCache.set(cacheKey, products);
             queryClient.setQueryData(['company-products', companyId], products);
+          }).catch(err => {
+            console.warn('Фоновое обновление не удалось:', err);
           });
         }, 0);
 
@@ -562,13 +588,14 @@ export function useCompanyProducts(companyId: number) {
       const products = await api.getProducts(companyId);
 
       // Сохраняем во ВСЕ кэши
-      ramCache.set(cacheKey, products, 3 * 60 * 1000);
+      ramCache.set('products', companyId, products);
       localCache.set(cacheKey, products);
 
       console.log(`💾💾 [CACHE SAVE] Товары компании ${companyId} сохранены в RAM + localStorage`);
       return products;
     },
     staleTime: 5 * 60 * 1000, // 5 минут
+    retry: 2, // Повторять при ошибке
   });
 }
 

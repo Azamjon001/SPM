@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Building2, LogOut, Package, ShoppingCart, Receipt, BarChart3, Barcode, Megaphone, MessageCircle, Menu, X } from 'lucide-react';
-import { DigitalWarehouse } from './DigitalWarehouse';
-import SalesPanel from './SalesPanel';
-import OrdersPanel from './OrdersPanel';
+import { BarChart3, Barcode, Building2, LogOut, Megaphone, Menu, MessageCircle, Package, Receipt, ShoppingCart, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getCurrentLanguage, type Language, useTranslation } from '../utils/translations';
 import AnalyticsPanel from './AnalyticsPanel';
 import BarcodeSearchPanel from './BarcodeSearchPanel';
-import CompanySMMPanel from './CompanySMMPanel';
 import CompanyChatPanel from './CompanyChatPanel';
-import { getCurrentLanguage, type Language, useTranslation } from '../utils/translations';
+import CompanySMMPanel from './CompanySMMPanel';
+import { DigitalWarehouse } from './DigitalWarehouse';
+import OrdersPanel from './OrdersPanel';
+import SalesPanel from './SalesPanel';
 
 interface CompanyPanelProps {
   onLogout: () => void;
@@ -18,19 +18,19 @@ interface CompanyPanelProps {
 export default function CompanyPanel({ onLogout, companyId, companyName }: CompanyPanelProps) {
   const [activeTab, setActiveTab] = useState<'warehouse' | 'sales' | 'orders' | 'analytics' | 'barcode' | 'smm' | 'chat'>('warehouse');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // 📱 Для мобильной версии
-  
+
   // 🌍 Система локализации для компании (заблокирована на русском)
   const [language, setLanguage] = useState<Language>(getCurrentLanguage());
   const t = useTranslation(language);
-  
+
   // Слушаем изменения языка
   useEffect(() => {
     const handleLanguageChange = (e: CustomEvent) => {
       setLanguage(e.detail);
     };
-    
+
     window.addEventListener('languageChange', handleLanguageChange as EventListener);
-    
+
     return () => {
       window.removeEventListener('languageChange', handleLanguageChange as EventListener);
     };
@@ -42,7 +42,7 @@ export default function CompanyPanel({ onLogout, companyId, companyName }: Compa
     <div className="min-h-screen bg-gray-50 flex">
       {/* 📱 Overlay для мобильных (при открытом sidebar) */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
@@ -83,101 +83,94 @@ export default function CompanyPanel({ onLogout, companyId, companyName }: Compa
               setActiveTab('warehouse');
               setIsSidebarOpen(false); // Закрываем на мобильных после выбора
             }}
-            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${
-              activeTab === 'warehouse'
+            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${activeTab === 'warehouse'
                 ? 'bg-purple-50 text-purple-600 border-r-4 border-purple-600'
                 : 'text-gray-600 hover:bg-purple-50 hover:text-purple-600 hover:scale-y-105 hover:shadow-lg hover:shadow-purple-200/50'
-            }`}
+              }`}
           >
             <Package className="w-5 h-5" />
             <span className="font-medium">{t.inventory}</span>
           </button>
-          
+
           <button
             onClick={() => {
               setActiveTab('sales');
               setIsSidebarOpen(false);
             }}
-            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${
-              activeTab === 'sales'
+            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${activeTab === 'sales'
                 ? 'bg-purple-50 text-purple-600 border-r-4 border-purple-600'
                 : 'text-gray-600 hover:bg-purple-50 hover:text-purple-600 hover:scale-y-105 hover:shadow-lg hover:shadow-purple-200/50'
-            }`}
+              }`}
           >
             <ShoppingCart className="w-5 h-5" />
             <span className="font-medium">{language === 'ru' ? 'Панель продаж' : 'Sotuv paneli'}</span>
           </button>
-          
+
           <button
             onClick={() => {
               setActiveTab('orders');
               setIsSidebarOpen(false);
             }}
-            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${
-              activeTab === 'orders'
+            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${activeTab === 'orders'
                 ? 'bg-purple-50 text-purple-600 border-r-4 border-purple-600'
                 : 'text-gray-600 hover:bg-purple-50 hover:text-purple-600 hover:scale-y-105 hover:shadow-lg hover:shadow-purple-200/50'
-            }`}
+              }`}
           >
             <Receipt className="w-5 h-5" />
             <span className="font-medium">{t.orders}</span>
           </button>
-          
+
           <button
             onClick={() => {
               setActiveTab('analytics');
               setIsSidebarOpen(false);
             }}
-            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${
-              activeTab === 'analytics'
+            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${activeTab === 'analytics'
                 ? 'bg-purple-50 text-purple-600 border-r-4 border-purple-600'
                 : 'text-gray-600 hover:bg-purple-50 hover:text-purple-600 hover:scale-y-105 hover:shadow-lg hover:shadow-purple-200/50'
-            }`}
+              }`}
           >
             <BarChart3 className="w-5 h-5" />
             <span className="font-medium">{t.statistics}</span>
           </button>
-          
+
           <button
             onClick={() => {
               setActiveTab('barcode');
               setIsSidebarOpen(false);
             }}
-            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${
-              activeTab === 'barcode'
+            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${activeTab === 'barcode'
                 ? 'bg-purple-50 text-purple-600 border-r-4 border-purple-600'
                 : 'text-gray-600 hover:bg-purple-50 hover:text-purple-600 hover:scale-y-105 hover:shadow-lg hover:shadow-purple-200/50'
-            }`}
+              }`}
           >
             <Barcode className="w-5 h-5" />
             <span className="font-medium">{language === 'ru' ? 'Штрих-код' : 'Shtrix-kod'}</span>
           </button>
-          
+
           <button
             onClick={() => {
               setActiveTab('smm');
               setIsSidebarOpen(false);
             }}
-            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${
-              activeTab === 'smm'
+            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${activeTab === 'smm'
                 ? 'bg-purple-50 text-purple-600 border-r-4 border-purple-600'
                 : 'text-gray-600 hover:bg-purple-50 hover:text-purple-600 hover:scale-y-105 hover:shadow-lg hover:shadow-purple-200/50'
-            }`}
+              }`}
           >
             <Megaphone className="w-5 h-5" />
             <span className="font-medium">{t.smm}</span>
           </button>
-          
+
           <button
             onClick={() => {
               setActiveTab('chat');
               setIsSidebarOpen(false);
             }}
-            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${
-              activeTab === 'chat'
+            className={`w-full flex items-center gap-3 px-6 py-3 transition-all duration-300 ${activeTab === 'chat'
                 ? 'bg-purple-50 text-purple-600 border-r-4 border-purple-600'
                 : 'text-gray-600 hover:bg-purple-50 hover:text-purple-600 hover:scale-y-105 hover:shadow-lg hover:shadow-purple-200/50'
-            }`}
+              }`}
           >
             <MessageCircle className="w-5 h-5" />
             <span className="font-medium">{t.chat}</span>
@@ -197,9 +190,9 @@ export default function CompanyPanel({ onLogout, companyId, companyName }: Compa
       </aside>
 
       {/* ✅ ОСНОВНОЙ КОНТЕНТ СПРАВА */}
-      <main className="flex-1 lg:ml-64">
+      <main className="flex-1 lg:ml-64 min-h-screen bg-gray-50">
         {/* Header с названием активной панели */}
-        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-5">
+        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
           <div className="px-4 lg:px-8 py-4 flex items-center gap-4">
             {/* 📱 Кнопка гамбургера (только на мобильных) */}
             <button
@@ -222,7 +215,7 @@ export default function CompanyPanel({ onLogout, companyId, companyName }: Compa
         </header>
 
         {/* Контент панелей */}
-        <div className="p-4 lg:p-8">
+        <div className="p-4 lg:p-8 min-h-[calc(100vh-73px)]">
           {activeTab === 'warehouse' && <DigitalWarehouse companyId={companyId} />}
           {activeTab === 'sales' && <SalesPanel companyId={companyId} />}
           {activeTab === 'orders' && <OrdersPanel companyId={companyId} />}

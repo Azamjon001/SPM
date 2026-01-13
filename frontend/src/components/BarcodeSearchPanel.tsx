@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
-import { Search, Barcode, X, Package, ShoppingCart, Trash2, RefreshCw, Plus, Minus, CheckCircle } from 'lucide-react';
-import { useProducts, useUpdateProduct, queryClient, localCache } from '../utils/cache';
+import { Barcode, CheckCircle, Minus, Package, Plus, RefreshCw, Search, ShoppingCart, Trash2, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { addCashierSale } from '../utils/api';
+import { localCache, queryClient, useProducts, useUpdateProduct } from '../utils/cache';
 import { invalidateCache } from '../utils/productsCache';
 
 interface Product {
@@ -82,16 +82,16 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
     }
 
     const trimmedBarcode = searchBarcode.trim();
-    
+
     // 🔍 Поиск по штрих-коду, barid или названию товара
     console.log('🔍 [Search] Ищем товар с barcode/barid/name:', trimmedBarcode);
     console.log('🔍 [Search] Всего товаров:', products.length);
-    
+
     const foundProduct = products.find(p => {
       const matchBarcode = p.barcode === trimmedBarcode;
       const matchBarid = p.barid === trimmedBarcode;
       const matchName = p.name.toLowerCase().includes(trimmedBarcode.toLowerCase());
-      
+
       if (matchBarcode || matchBarid || matchName) {
         console.log('✅ [Search] Товар найден!', {
           name: p.name,
@@ -100,7 +100,7 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
           matchedBy: matchBarcode ? 'barcode' : matchBarid ? 'barid' : 'name'
         });
       }
-      
+
       return matchBarcode || matchBarid || matchName;
     });
 
@@ -109,14 +109,14 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
       setLastScannedProduct(foundProduct);
       setNotFound(false);
       addToCart(foundProduct);
-      
+
       // Очищаем поле для следующего сканирования
       setSearchBarcode('');
     } else {
       // ❌ Товар не найден
       setLastScannedProduct(null);
       setNotFound(true);
-      
+
       // Автоматически убираем уведомление через 2 секунды
       setTimeout(() => {
         setNotFound(false);
@@ -128,7 +128,7 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
   const addToCart = (product: Product) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.product.id === product.id);
-      
+
       if (existingItem) {
         // Товар уже в корзине - увеличиваем количество
         return prevCart.map(item =>
@@ -161,7 +161,7 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
     if (cart.length === 0) {
       return;
     }
-    
+
     if (confirm('🔄 Начать новый заказ?\n\nТекущая корзина будет очищена.')) {
       setCart([]);
       setLastScannedProduct(null);
@@ -216,10 +216,10 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
     try {
       console.log('🛒 [Checkout] Starting checkout process...');
       console.log('🛒 [Checkout] Cart items:', cart);
-      
+
       // 💰 Расчет общей прибыли от наценки
       let totalMarkupProfit = 0;
-      
+
       const saleData = {
         company_id: companyId,
         items: cart.map(item => {
@@ -227,12 +227,12 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
           const markupPercent = item.product.markup_percent || 0;
           const priceWithMarkup = getPriceWithMarkup(basePrice, markupPercent);
           const markupAmount = priceWithMarkup - basePrice; // Наценка за 1 штуку
-          
+
           // ✅ Добавляем прибыль от наценки этого товара
           totalMarkupProfit += markupAmount * item.quantity;
-          
+
           console.log(`💰 [Checkout] Item: ${item.product.name}, base: ${basePrice}, markup: ${markupPercent}%, markup_amount: ${markupAmount}, qty: ${item.quantity}, profit: ${markupAmount * item.quantity}`);
-          
+
           return {
             product_id: item.product.id,
             name: item.product.name,
@@ -246,10 +246,10 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
         total_amount: getTotalAmount(),
         markup_profit: totalMarkupProfit // 💰 Общая прибыль от наценки
       };
-      
+
       console.log('🛒 [Checkout] Sale data:', saleData);
       console.log(`💰 [Checkout] Total markup profit: ${totalMarkupProfit.toLocaleString()} сум`);
-      
+
       // 1. Сохраняем продажу в аналитику
       console.log('💾 [Checkout] Saving sale to analytics...');
       console.log(`💰 [Checkout] Данные для сохранения:`);
@@ -293,16 +293,16 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
       console.log('✅ [Checkout] Checkout completed successfully!');
     } catch (error) {
       console.error('❌ [Checkout] Error:', error);
-      
+
       // Более детальная информация об ошибке
       let errorMessage = '❌ Ошибка при оформлении продажи.\n\n';
-      
+
       if (error instanceof Error) {
         errorMessage += `Детали: ${error.message}\n\n`;
       }
-      
+
       errorMessage += 'Попробуйте снова или обратитесь к администратору.';
-      
+
       alert(errorMessage);
     } finally {
       setProcessing(false);
@@ -310,11 +310,11 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
   };
 
   if (isLoading) {
-    return <div className="text-center py-12">Загрузка...</div>;
+    return <div className="text-center py-12 text-gray-600">Загрузка...</div>;
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4">
       {/* 🎯 Касса - Поле сканирования штрих-кода */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow-lg p-6">
         <div className="flex items-center justify-between mb-4">
@@ -322,7 +322,7 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
             <ShoppingCart className="w-7 h-7" />
             <span className="text-2xl">Цифровая Касса</span>
           </h2>
-          
+
           {cart.length > 0 && (
             <button
               onClick={handleNewOrder}
@@ -333,7 +333,7 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
             </button>
           )}
         </div>
-        
+
         <div className="flex gap-3">
           <div className="flex-1 relative">
             <input
@@ -361,7 +361,7 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
             />
             <Barcode className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" />
           </div>
-          
+
           <button
             onClick={handleScan}
             className="bg-white text-blue-600 px-10 py-4 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-2 shadow-md"
@@ -370,7 +370,7 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
             Найти
           </button>
         </div>
-        
+
         <p className="text-blue-100 text-sm mt-3">
           💡 Отсканируйте товар или введите штрих-код/barid/название и нажмите Enter
         </p>
@@ -466,17 +466,17 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
                     >
                       <Minus className="w-5 h-5" />
                     </button>
-                    
+
                     <input
                       type="number"
                       min="0"
                       value={editingQuantities[item.product.id] !== undefined ? editingQuantities[item.product.id] : item.quantity}
                       onChange={(e) => {
                         const inputValue = e.target.value;
-                        
+
                         // Сохраняем значение в локальное состояние (разрешаем пустую строку и 0)
                         setEditingQuantities(prev => ({ ...prev, [item.product.id]: inputValue }));
-                        
+
                         // Обновляем корзину если значение валидное (включая 0)
                         // Если поле пустое - НЕ обновляем корзину, товар остается с прежним количеством
                         if (inputValue !== '') {
@@ -502,14 +502,14 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
                       }}
                       className="w-20 text-center border-2 border-gray-300 rounded-lg py-2 font-medium text-lg"
                     />
-                    
+
                     <button
                       onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                       className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-200 transition-colors"
                     >
                       <Plus className="w-5 h-5" />
                     </button>
-                    
+
                     <button
                       onClick={() => removeFromCart(item.product.id)}
                       className="bg-gray-100 text-gray-600 p-2 rounded-lg hover:bg-red-100 hover:text-red-600 transition-colors ml-2"
@@ -577,14 +577,14 @@ export default function BarcodeSearchPanel({ companyId }: BarcodeSearchPanelProp
             <div className="text-sm text-blue-600 mb-1">Всего товаров</div>
             <div className="text-3xl text-blue-700">{products.length}</div>
           </div>
-          
+
           <div className="bg-green-50 rounded-lg p-4">
             <div className="text-sm text-green-600 mb-1">Со штрих-кодом</div>
             <div className="text-3xl text-green-700">
               {products.filter(p => p.barcode && p.barcode.trim()).length}
             </div>
           </div>
-          
+
           <div className="bg-orange-50 rounded-lg p-4">
             <div className="text-sm text-orange-600 mb-1">Без штрих-кода</div>
             <div className="text-3xl text-orange-700">

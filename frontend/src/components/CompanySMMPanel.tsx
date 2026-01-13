@@ -335,15 +335,15 @@ export default function CompanySMMPanel({ companyId, companyName }: CompanySMMPa
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-gradient-to-br from-orange-50 to-purple-50 rounded-xl p-4">
       {/* Навигация */}
       <div className="bg-white rounded-lg shadow-sm">
         <div className="flex border-b border-gray-200">
           <button
             onClick={() => setActiveTab('profile')}
             className={`flex items-center gap-2 px-6 py-4 transition-colors ${activeTab === 'profile'
-                ? 'border-b-2 border-purple-600 text-purple-600'
-                : 'text-gray-600 hover:text-gray-900'
+              ? 'border-b-2 border-purple-600 text-purple-600'
+              : 'text-gray-600 hover:text-gray-900'
               }`}
           >
             <Star className="w-5 h-5" />
@@ -352,8 +352,8 @@ export default function CompanySMMPanel({ companyId, companyName }: CompanySMMPa
           <button
             onClick={() => setActiveTab('photos')}
             className={`flex items-center gap-2 px-6 py-4 transition-colors ${activeTab === 'photos'
-                ? 'border-b-2 border-purple-600 text-purple-600'
-                : 'text-gray-600 hover:text-gray-900'
+              ? 'border-b-2 border-purple-600 text-purple-600'
+              : 'text-gray-600 hover:text-gray-900'
               }`}
           >
             <ImageIcon className="w-5 h-5" />
@@ -398,8 +398,8 @@ export default function CompanySMMPanel({ companyId, companyName }: CompanySMMPa
                           <Star
                             key={1}
                             className={`w-5 h-5 ${1 <= Math.round(profile.rating)
-                                ? 'fill-yellow-400 text-yellow-400'
-                                : 'text-gray-300'
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-gray-300'
                               }`}
                           />
                           <span className="ml-2">

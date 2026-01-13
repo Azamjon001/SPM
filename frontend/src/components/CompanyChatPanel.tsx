@@ -287,9 +287,9 @@ export default function CompanyChatPanel({ companyId, companyName }: CompanyChat
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-full bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl overflow-hidden">
       {/* Заголовок чата */}
-      <div className="flex items-center gap-3 p-4 bg-white border-b shadow-sm">
+      <div className="flex items-center gap-3 p-4 bg-white border-b shadow-sm rounded-t-xl">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold">
           👤
         </div>

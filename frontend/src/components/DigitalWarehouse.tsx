@@ -41,7 +41,17 @@ interface DigitalWarehouseProps {
 
 export const DigitalWarehouse: React.FC<DigitalWarehouseProps> = ({ companyId }) => {
   const queryClient = useQueryClient();
-  const { data: products = [], isLoading, error, refetch } = useCompanyProducts(companyId);
+  const { data: products = [], isLoading, error, refetch, isError, isFetching } = useCompanyProducts(companyId);
+
+  // 🐛 DEBUG: Логируем состояние загрузки
+  console.log('🏭 [DigitalWarehouse] State:', {
+    companyId,
+    isLoading,
+    isFetching,
+    isError,
+    error: error?.message,
+    productsCount: products?.length
+  });
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: '', quantity: 0, price: 0, markup_percent: 0, barcode: '', category: '', barid: '' });
@@ -677,11 +687,11 @@ export const DigitalWarehouse: React.FC<DigitalWarehouseProps> = ({ companyId })
     setExcelPreviewData(null);
   };
 
-  if (isLoading) return <div className="p-8 text-center">Загрузка склада...</div>;
+  if (isLoading) return <div className="p-8 text-center text-gray-600">Загрузка склада...</div>;
   if (error) return <div className="p-8 text-center text-red-600">Ошибка загрузки: {(error as Error).message}</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-4 sm:p-8">
+    <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-4 sm:mb-6 lg:mb-8">
@@ -804,8 +814,8 @@ export const DigitalWarehouse: React.FC<DigitalWarehouseProps> = ({ companyId })
                   <button
                     onClick={() => setModalTab('add')}
                     className={`flex-1 py-3 px-4 rounded-lg transition-all ${modalTab === 'add'
-                        ? 'bg-white text-purple-600 shadow-lg'
-                        : 'bg-white/20 text-white hover:bg-white/30'
+                      ? 'bg-white text-purple-600 shadow-lg'
+                      : 'bg-white/20 text-white hover:bg-white/30'
                       }`}
                   >
                     <Plus className="w-5 h-5 inline mr-2" />
@@ -814,8 +824,8 @@ export const DigitalWarehouse: React.FC<DigitalWarehouseProps> = ({ companyId })
                   <button
                     onClick={() => setModalTab('categories')}
                     className={`flex-1 py-3 px-4 rounded-lg transition-all ${modalTab === 'categories'
-                        ? 'bg-white text-purple-600 shadow-lg'
-                        : 'bg-white/20 text-white hover:bg-white/30'
+                      ? 'bg-white text-purple-600 shadow-lg'
+                      : 'bg-white/20 text-white hover:bg-white/30'
                       }`}
                   >
                     <Layers className="w-5 h-5 inline mr-2" />
